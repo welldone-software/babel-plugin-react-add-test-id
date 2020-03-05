@@ -1,0 +1,39 @@
+{
+  "name": "@welldone-software/babel-plugin-react-add-test-id",
+  "version": "0.0.1",
+  "description": "Add attribute on react elements",
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "babel-node test/index.js",
+    "build": "babel src --out-dir lib",
+    "prepublish": "npm run build"
+  },
+  "keywords": [
+    "babel",
+    "babel-plugin",
+    "react",
+    "add",
+    "test",
+    "test-id"
+  ],
+  "files": [
+    "lib",
+    "src"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "@babel/cli": "^7.8.4",
+    "@babel/core": "^7.2.0",
+    "@babel/node": "^7.8.4",
+    "@babel/plugin-syntax-jsx": "^7.8.3",
+    "@babel/preset-env": "^7.4.3",
+    "@babel/preset-react": "^7.0.0",
+    "babel-eslint": "^10.0.3",
+    "eslint": "^6.8.0",
+    "eslint-plugin-import": "^2.0.0",
+    "mocha": "^7.0.1"
+  },
+  "dependencies": {
+    "@babel/types": "^7.8.3"
+  }
+}
