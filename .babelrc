@@ -2,5 +2,9 @@
   "presets": [
     "@babel/preset-env",
     "@babel/preset-react"
+  ],
+  "plugins": [
+    ["./src/index.js", {"mode": "minimal", "delimiter": " "}],
+    "@babel/plugin-proposal-class-properties"
   ]
 }

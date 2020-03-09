@@ -1,6 +1,6 @@
-import * as t from "@babel/types";
+const { types: t } = require('@babel/core');
 
-export default function(
+module.exports = function(
   api,
   {
     attrName = "data-test-id",
