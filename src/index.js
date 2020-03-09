@@ -29,25 +29,30 @@ export default function(
     delimiter = "-"
   }
 ) {
+  let isRootElement = true;
   return {
     visitor: {
       Program(path) {
         path.traverse({
           ClassDeclaration(path) {
+            isRootElement = true;
             const componentName = path.node.id.name;
             passDownComponentName(path, componentName, mode, delimiter);
           },
           VariableDeclarator(path) {
+            isRootElement = true;
             const componentName = path.node.id.name;
             passDownComponentName(path, componentName, mode, delimiter);
           },
           JSXElement(path) {
             const componentName = path.node.openingElement.name.name || "";
+            const isRoot = isRootElement || path.parent.type === "ReturnStatement";
+            const isIgnoredElement = ignoreElements.includes(componentName);
 
             if (
               componentName === "" ||
               componentName.includes("Fragment") ||
-              ignoreElements.includes(componentName)
+              (!isRoot && isIgnoredElement)
             ) {
               return;
             }
@@ -56,10 +61,12 @@ export default function(
 
             const concatComponentName = concatComponentsName(
               path.node.componentName,
-              componentName,
+              isIgnoredElement ? "" : componentName,
               delimiter,
               keyValue,
             );
+
+            isRootElement = false;
 
             const testId = keyValue
               ? t.jsxExpressionContainer(t.identifier(concatComponentName))
@@ -76,7 +83,7 @@ export default function(
       }
     }
   };
-}
+};
 
 const concatComponentsName = (
   parent = "",
