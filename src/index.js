@@ -96,9 +96,9 @@ const passDownComponentName = (path, componentName, mode, delimiter) => {
   let isRootElement = true;
 
   path.traverse({
-    JSXElement(path2) {
+    JSXElement(path) {
       if (mode === "minimal") {
-        path2.node.componentName = isRootElement
+        path.node.componentName = isRootElement || path.parent.type === 'ReturnStatement'
           ? concatComponentsName(
               path.node.componentName,
               componentName,
@@ -106,7 +106,7 @@ const passDownComponentName = (path, componentName, mode, delimiter) => {
             )
           : null;
       } else {
-        path2.node.componentName = concatComponentsName(
+        path.node.componentName = concatComponentsName(
           path.node.componentName,
           componentName,
           delimiter
