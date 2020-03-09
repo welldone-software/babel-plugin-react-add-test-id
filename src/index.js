@@ -29,25 +29,30 @@ module.exports = function(
     delimiter = "-"
   }
 ) {
+  let isRootElement = true;
   return {
     visitor: {
       Program(path) {
         path.traverse({
           ClassDeclaration(path) {
+            isRootElement = true;
             const componentName = path.node.id.name;
             passDownComponentName(path, componentName, mode, delimiter);
           },
           VariableDeclarator(path) {
+            isRootElement = true;
             const componentName = path.node.id.name;
             passDownComponentName(path, componentName, mode, delimiter);
           },
           JSXElement(path) {
             const componentName = path.node.openingElement.name.name || "";
+            const isRoot = isRootElement || path.parent.type === "ReturnStatement";
+            const isIgnoredElement = ignoreElements.includes(componentName);
 
             if (
               componentName === "" ||
               componentName.includes("Fragment") ||
-              ignoreElements.includes(componentName)
+              (!isRoot && isIgnoredElement)
             ) {
               return;
             }
@@ -56,10 +61,12 @@ module.exports = function(
 
             const concatComponentName = concatComponentsName(
               path.node.componentName,
-              componentName,
+              isIgnoredElement ? "" : componentName,
               delimiter,
               keyValue,
             );
+
+            isRootElement = false;
 
             const testId = keyValue
               ? t.jsxExpressionContainer(t.identifier(concatComponentName))
@@ -76,13 +83,13 @@ module.exports = function(
       }
     }
   };
-}
+};
 
 const concatComponentsName = (
   parent = "",
   current = "",
   delimiter = "-",
-  keyValue = "",
+  keyValue = ""
 ) => {
   const componentsName =
     parent && current ? `${parent}${delimiter}${current}` : parent || current;
@@ -98,13 +105,14 @@ const passDownComponentName = (path, componentName, mode, delimiter) => {
   path.traverse({
     JSXElement(path2) {
       if (mode === "minimal") {
-        path2.node.componentName = isRootElement
-          ? concatComponentsName(
-              path.node.componentName,
-              componentName,
-              delimiter
-            )
-          : null;
+        path2.node.componentName =
+          isRootElement || path2.parent.type === "ReturnStatement"
+            ? concatComponentsName(
+                path.node.componentName,
+                componentName,
+                delimiter
+              )
+            : null;
       } else {
         path2.node.componentName = concatComponentsName(
           path.node.componentName,
