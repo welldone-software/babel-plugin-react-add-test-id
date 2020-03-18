@@ -24,8 +24,12 @@ export default function(
       "h3",
       "h4",
       "h5",
-      "h6"
+      "h6",
+      "svg",
+      "path",
+      "g"
     ],
+    additionalIgnoreElements = [],
     delimiter = "-"
   }
 ) {
@@ -46,8 +50,12 @@ export default function(
           },
           JSXElement(path) {
             const componentName = path.node.openingElement.name.name || "";
-            const isRoot = isRootElement || path.parent.type === "ReturnStatement";
-            const isIgnoredElement = ignoreElements.includes(componentName);
+            const isRoot =
+              isRootElement || path.parent.type === "ReturnStatement";
+            const isIgnoredElement = [
+              ...ignoreElements,
+              ...additionalIgnoreElements
+            ].includes(componentName);
 
             if (
               componentName === "" ||
@@ -63,7 +71,7 @@ export default function(
               path.node.componentName,
               isIgnoredElement ? "" : componentName,
               delimiter,
-              keyValue,
+              keyValue
             );
 
             isRootElement = false;
@@ -83,13 +91,13 @@ export default function(
       }
     }
   };
-};
+}
 
 const concatComponentsName = (
   parent = "",
   current = "",
   delimiter = "-",
-  keyValue = "",
+  keyValue = ""
 ) => {
   const componentsName =
     parent && current ? `${parent}${delimiter}${current}` : parent || current;
@@ -105,13 +113,14 @@ const passDownComponentName = (path, componentName, mode, delimiter) => {
   path.traverse({
     JSXElement(path) {
       if (mode === "minimal") {
-        path.node.componentName = isRootElement || path.parent.type === 'ReturnStatement'
-          ? concatComponentsName(
-              path.node.componentName,
-              componentName,
-              delimiter
-            )
-          : null;
+        path.node.componentName =
+          isRootElement || path.parent.type === "ReturnStatement"
+            ? concatComponentsName(
+                path.node.componentName,
+                componentName,
+                delimiter
+              )
+            : null;
       } else {
         path.node.componentName = concatComponentsName(
           path.node.componentName,
