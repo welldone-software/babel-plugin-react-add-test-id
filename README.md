@@ -62,7 +62,7 @@ in .babelrc
 
 ```
 "plugins": [
-  "@welldone-software/babel-plugin-add-test-id",
+  "@welldone-software/babel-plugin-react-add-test-id",
   ...
 ```
 
