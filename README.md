@@ -1,4 +1,4 @@
-# babel-plugin-react-add-test-id
+# babel-plugin-test-id
 
 ## Example
 
@@ -47,4 +47,5 @@ in .babelrc
 "plugins": [
   "babel-plugin-test-id",
   ...
+ ]
 ```
