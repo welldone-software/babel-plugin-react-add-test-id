@@ -1,7 +1,7 @@
 {
-  "name": "@welldone-software/babel-plugin-react-add-test-id",
-  "version": "0.0.4",
-  "description": "Add attribute on react elements",
+  "name": "babel-plugin-test-id",
+  "version": "0.0.0",
+  "description": "Add attribute on elements",
   "main": "lib/index.js",
   "scripts": {
     "test": "babel-node test/index.js",
