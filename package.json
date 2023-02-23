@@ -1,6 +1,6 @@
 {
   "name": "babel-plugin-test-id",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Add attribute on elements",
   "main": "lib/index.js",
   "scripts": {

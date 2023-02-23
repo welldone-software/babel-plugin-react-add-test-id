@@ -48,10 +48,3 @@ in .babelrc
   "babel-plugin-test-id",
   ...
 ```
-
-in .babelrc
-
-```
-"plugins": [
-  ["babel-plugin-test-id"],
-```
