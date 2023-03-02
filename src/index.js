@@ -34,7 +34,7 @@ export default function (
   api,
   {
     idAttributeKey = "data-id",
-    componentAttributeKey = "data-component-name",
+    componentAttributeKey = "data-component",
     classnameAttributeKey = "data-classname",
     delimiter = "-",
   }

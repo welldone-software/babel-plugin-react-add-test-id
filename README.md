@@ -55,6 +55,15 @@ in .babelrc
 | Property | Type | Default | Description |
 | --- | --- | --- | ---|
 | idAttributeKey | string | `data-id` | Unique information extracted from the attributes and content of the element |
-| componentAttributeKey | string | `data-component-name` | React component name if any |
+| componentAttributeKey | string | `data-component` | React component name if any |
 | classnameAttributeKey | string | `data-classname` | css classnames before uglified |
-| delimiter | string | `-` | Join multiple extracted strings
+| delimiter | string | `-` | Join multiple extracted strings |
+
+in .babelrc
+
+```
+"plugins": [
+  ["babel-plugin-test-id", { "idAttributeKey", "data-my-test-id" }]
+  ...
+ ]
+```
