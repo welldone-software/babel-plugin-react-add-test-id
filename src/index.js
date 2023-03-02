@@ -14,7 +14,6 @@ const ID_ATTRIBUTE_KEY_LIST = [
   "field",
   "type",
 ];
-const DELIMETER = "-";
 const CAPITALISED_REGEX = /^[A-Z]/g;
 const NON_ALPHANUMERIC_OR_UNDERSCORE_REGEX = /[^a-zA-Z0-9_]/g; // i18n keys contain _
 const isCapitalised = (str) => str.match(CAPITALISED_REGEX) !== null;
@@ -76,7 +75,7 @@ export default function (
 
         const newTestIdValue = getContentForArray(idNodes)
           .filter(isCapitalised) // The value should be a capitalised string, i.e. i18n key
-          .join(DELIMETER);
+          .join(delimiter);
         if (newTestIdValue.length > 0) {
           attributes.push(createAttributeLiteral(testId, newTestIdValue));
         }
@@ -222,12 +221,12 @@ function getContentForArray(nodeArray) {
 }
 
 /**
- * @example getContentStringForArray([styles.a, styles.a, styles.b]) -> a + DELIMITER + b
+ * @example getContentStringForArray([styles.a, styles.a, styles.b]) -> a + delimiter + b
  * @param {t.Node[]} nodeArray
  * @returns {string} a string of unique content extracted from the node array joined by the delimiter
  */
-function getContentStringForArray(nodeArray) {
-  return getContentForArray(nodeArray).join(DELIMETER);
+function getContentStringForArray(nodeArray, delimiter) {
+  return getContentForArray(nodeArray).join(delimiter);
 }
 
 /**
@@ -270,13 +269,13 @@ function getContent(node, allowIdentifier = false) {
     }
     case "CallExpression":
       // cx(styles.a, styles.b)
-      return getContentStringForArray(node.arguments);
+      return getContentStringForArray(node.arguments, delimiter);
     case "ConditionalExpression":
-      return getContentStringForArray([node.consequent, node.alternate]);
+      return getContentStringForArray([node.consequent, node.alternate], delimiter);
     case "LogicalExpression":
     case "BinaryExpression":
       // a + b
-      return getContentStringForArray([node.left, node.right]);
+      return getContentStringForArray([node.left, node.right], delimiter);
     case "ObjectExpression":
       /*
         header={{
@@ -284,7 +283,7 @@ function getContent(node, allowIdentifier = false) {
             link: { path: HvacPage.ChillerPlantMonitoring },
           }}
         */
-      return getContentStringForArray(node.properties);
+      return getContentStringForArray(node.properties, delimiter);
     default:
       // console.warn(node.type + ' not handled', node);
       return "";
