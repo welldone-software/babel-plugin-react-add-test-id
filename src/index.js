@@ -1,3 +1,4 @@
+// @ts-check
 import * as t from "@babel/types";
 const INTERNAL_PARAM = "_internal_param";
 const CLASSNAME = "className";
@@ -43,7 +44,7 @@ export default function (
     visitor: {
       JSXElement(path) {
         const attributes = path.node.openingElement.attributes;
-        const componentName = getContent(path.node.openingElement.name);
+        const componentName = getContent(path.node.openingElement.name, delimiter);
         // Skip for React.Fragment elements
         if (!componentName || componentName === REACT_FRAGMENT) {
           return;
@@ -73,7 +74,7 @@ export default function (
           ),
         ];
 
-        const newTestIdValue = getContentForArray(idNodes)
+        const newTestIdValue = getContentForArray(idNodes, delimiter)
           .filter(isCapitalised) // The value should be a capitalised string, i.e. i18n key
           .join(delimiter);
         if (newTestIdValue.length > 0) {
@@ -85,7 +86,7 @@ export default function (
           (a) => t.isJSXAttribute(a) && a.name?.name === CLASSNAME
         );
         if (classnameAttribute && t.isJSXAttribute(classnameAttribute)) {
-          const newAttributeValue = getContent(classnameAttribute);
+          const newAttributeValue = getContent(classnameAttribute, delimiter);
           if (newAttributeValue.length > 0) {
             attributes.push(
               createAttributeLiteral(classnameAttributeKey, newAttributeValue)
@@ -118,6 +119,7 @@ export default function (
             returnStatement?.argument,
             idAttributeKey,
             componentAttributeKey,
+            delimiter,
             functionName,
             currentParams,
             path.node.body?.body
@@ -143,6 +145,7 @@ export default function (
               returnStatement?.argument,
               idAttributeKey,
               componentAttributeKey,
+              delimiter,
               variableName,
               currentParameters,
               body
@@ -208,33 +211,36 @@ function createVariableDeclarationArray(parameterIdentifier, key) {
 }
 
 /**
- * @example getContentForArray([styles.a, styles.a, styles.b]) -> [a, b]
+ * @example getContentForArray([styles.a, styles.a, styles.b], delimiter) -> [a, b]
  * @param {t.Node[]} nodeArray
+ * @param {string} delimiter
  * @returns {string[]} an array of unique content extracted from the node array
  */
-function getContentForArray(nodeArray) {
+function getContentForArray(nodeArray, delimiter) {
   return Array.from(
     new Set(
-      nodeArray.map((node) => getContent(node)).filter((t) => t.length > 0)
+      nodeArray.map((node) => getContent(node, delimiter)).filter((t) => t.length > 0)
     )
   );
 }
 
 /**
- * @example getContentStringForArray([styles.a, styles.a, styles.b]) -> a + delimiter + b
+ * @example getContentStringForArray([styles.a, styles.a, styles.b], delimiter) -> a + delimiter + b
  * @param {t.Node[]} nodeArray
+ * @param {string} delimiter
  * @returns {string} a string of unique content extracted from the node array joined by the delimiter
  */
 function getContentStringForArray(nodeArray, delimiter) {
-  return getContentForArray(nodeArray).join(delimiter);
+  return getContentForArray(nodeArray, delimiter).join(delimiter);
 }
 
 /**
  * @param {t.Node} node
+ * @param {string} delimiter
  * @param {boolean} allowIdentifier
  * @returns {string} the content of nodes based on their type
  */
-function getContent(node, allowIdentifier = false) {
+function getContent(node, delimiter, allowIdentifier = false) {
   if (!node || !node.type) {
     return "";
   }
@@ -248,8 +254,8 @@ function getContent(node, allowIdentifier = false) {
         node.object.name &&
         (node.object.name === STYLES ||
           node.object.name === node.object.name.toUpperCase())
-        ? getContent(node.property, true)
-        : getContent(node.property, allowIdentifier);
+        ? getContent(node.property, delimiter, true)
+        : getContent(node.property, delimiter, allowIdentifier);
     case "JSXMemberExpression":
       // React.Fragment
       if ("name" in node.object) {
@@ -262,10 +268,10 @@ function getContent(node, allowIdentifier = false) {
     case "JSXIdentifier":
       return node.name.replace(NON_ALPHANUMERIC_OR_UNDERSCORE_REGEX, "");
     case "JSXExpressionContainer":
-      return getContent(node.expression, allowIdentifier);
+      return getContent(node.expression, delimiter, allowIdentifier);
     case "ObjectProperty":
     case "JSXAttribute": {
-      return node.value ? getContent(node.value, allowIdentifier) : "";
+      return node.value ? getContent(node.value, delimiter, allowIdentifier) : "";
     }
     case "CallExpression":
       // cx(styles.a, styles.b)
@@ -352,7 +358,9 @@ function getParameterIdentifier(currentParameters) {
  */
 function addComponentAttribute(
   element,
+  idAttributeKey,
   componentAttributeKey,
+  delimiter,
   componentName,
   currentParameters,
   body
@@ -364,7 +372,7 @@ function addComponentAttribute(
   if (t.isJSXElement(element)) {
     // 1. Add component attribute
     const attributes = element.openingElement.attributes;
-    const tagName = getContent(element.openingElement.name);
+    const tagName = getContent(element.openingElement.name, delimiter);
     if (isCapitalised(tagName)) {
       if (tagName.includes(".")) {
         // .Provider wrapper or React.Fragment wrapper
@@ -373,6 +381,7 @@ function addComponentAttribute(
             child,
             idAttributeKey,
             componentAttributeKey,
+            delimiter,
             componentName,
             currentParameters,
             body
@@ -442,6 +451,7 @@ function addComponentAttribute(
         child,
         idAttributeKey,
         componentAttributeKey,
+        delimiter,
         componentName,
         currentParameters,
         body
@@ -454,6 +464,7 @@ function addComponentAttribute(
         element.expression.consequent,
         idAttributeKey,
         componentAttributeKey,
+        delimiter,
         componentName,
         currentParameters,
         body
@@ -462,6 +473,7 @@ function addComponentAttribute(
         element.expression.alternate,
         idAttributeKey,
         componentAttributeKey,
+        delimiter,
         componentName,
         currentParameters,
         body
@@ -472,6 +484,7 @@ function addComponentAttribute(
         element.expression?.right,
         idAttributeKey,
         componentAttributeKey,
+        delimiter,
         componentName,
         currentParameters,
         body
