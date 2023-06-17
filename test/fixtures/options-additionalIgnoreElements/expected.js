@@ -1,5 +1,5 @@
 const Foo = () => (
-  <div data-test-id="Foo">
+  <div>
     <div>
       <span>
         <test>

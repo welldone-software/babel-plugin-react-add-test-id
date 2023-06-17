@@ -1,6 +1,6 @@
 import * as t from "@babel/types";
 
-export default function(
+export default function (
   api,
   {
     attrName = "data-test-id",
@@ -27,10 +27,10 @@ export default function(
       "h6",
       "svg",
       "path",
-      "g"
+      "g",
     ],
     additionalIgnoreElements = [],
-    delimiter = "-"
+    delimiter = "-",
   }
 ) {
   let isRootElement = true;
@@ -54,7 +54,7 @@ export default function(
               isRootElement || path.parent.type === "ReturnStatement";
             const isIgnoredElement = [
               ...ignoreElements,
-              ...additionalIgnoreElements
+              ...additionalIgnoreElements,
             ].includes(componentName);
 
             if (
@@ -80,16 +80,17 @@ export default function(
               ? t.jsxExpressionContainer(t.identifier(concatComponentName))
               : t.stringLiteral(concatComponentName);
 
-            path.node.openingElement.attributes.push(
-              t.jSXAttribute(t.jSXIdentifier(attrName), testId)
-            );
+            !isIgnoredElement &&
+              path.node.openingElement.attributes.push(
+                t.jSXAttribute(t.jSXIdentifier(attrName), testId)
+              );
 
             mode === "full" &&
               passDownComponentName(path, componentName, mode, delimiter);
-          }
+          },
         });
-      }
-    }
+      },
+    },
   };
 }
 
@@ -130,11 +131,11 @@ const passDownComponentName = (path, componentName, mode, delimiter) => {
       }
 
       isRootElement = false;
-    }
+    },
   });
 };
 
-const getKey = path => {
+const getKey = (path) => {
   const keyAttribute = path.node.openingElement.attributes.find(
     ({ name }) => name && name.name === "key"
   );

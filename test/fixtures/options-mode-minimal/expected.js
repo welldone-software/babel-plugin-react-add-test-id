@@ -1,5 +1,5 @@
 const Foo = () => (
-  <div data-test-id="Foo">
+  <div>
     <div>
       <Bar1 data-test-id="Bar1" />
       <Bar2 data-test-id="Bar2">
